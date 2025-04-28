@@ -15,33 +15,66 @@
         <button id="buy">Купить</button>
     </div>
     <form id="form">
-        <input type="text" placeholder="Имя" id="user_name">
-        <input type="text" placeholder="Email" id="user_email">
-        <input type="text" placeholder="Телефон" id="user_phone">
+        <input type="text" placeholder="Имя" id="user_name" maxlength="6">
+        <input type="email" placeholder="Email" id="user_email">
+        <input type="tel" placeholder="Телефон" id="user_phone" pattern="\+?[0-9\s\-\(\)]+">
         <button id="order">Оформить</button>
+        <p id="error" class="error-message"></p>
     </form>
     <script src="https://telegram.org/js/telegram-web-app.js?57"></script>
     <script>
     let tg = window.Telegram.WebApp;
     let buy = document.getElementById("buy");
     let order = document.getElementById("order");
+    let errorElement = document.getElementById("error");
     tg.expand();
+
+
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+
+    function isValidPhone(phone) {
+        return /^\+?[0-9\s\-\(\)]{7,}$/.test(phone);
+    }
 
     buy.addEventListener("click", () => {
         document.getElementById("main").style.display = "none";
         document.getElementById("form").style.display = "block";
-        document.getElementById("user_name").value = tg.initDataUnsafe.user.first_name + " " + (tg.initDataUnsafe.user.last_name || "");
+        let user = tg.initDataUnsafe.user;
+        if (user) {
+            let fullName = (user.first_name || "") + " " + (user.last_name || "");
+            document.getElementById("user_name").value = fullName.trim().substring(0, 6);
+        }
     });
 
     order.addEventListener("click", (e) => {
         e.preventDefault();
+        errorElement.textContent = "";
+
         let name = document.getElementById("user_name").value.trim();
         let email = document.getElementById("user_email").value.trim();
         let phone = document.getElementById("user_phone").value.trim();
 
-
+        // Проверки
         if (!name || !email || !phone) {
-            alert("Заполните все поля!");
+            errorElement.textContent = "Заполните все поля!";
+            return;
+        }
+
+        if (name.length > 6) {
+            errorElement.textContent = "Имя должно быть не длиннее 6 символов";
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            errorElement.textContent = "Введите корректный email (например: user@example.com)";
+            return;
+        }
+
+        if (!isValidPhone(phone)) {
+            errorElement.textContent = "Введите корректный номер телефона (например: +79991234567)";
             return;
         }
 
@@ -54,7 +87,7 @@
         tg.sendData(JSON.stringify(data));
         tg.close();
     });
-</script>
+    </script>
 </body>
 </html>
 

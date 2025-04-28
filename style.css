@@ -147,3 +147,17 @@ input {
         border-color: #555;
     }
 }
+
+.error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Для темной темы */
+@media (prefers-color-scheme: dark) {
+    .error-message {
+        color: #ff6b6b;
+    }
+}
